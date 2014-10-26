@@ -57,19 +57,15 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
-#include <EthernetDHCP.h>
-#include <EthernetDNS.h>
 
 // put MAC address of your Enet device here
 static byte mac[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-static byte dnsServer[] = { 8, 8, 8, 8 };
 
 // Put your web server here, also see URL used
 // in queryServer(). It should be a constant too.
-const char *webServerName = "www.example.com";
-
-static byte webServerIp[4];
+const char webServerName[] = "www.example.com";
 static unsigned int webServerPort = 4444;
+const char webFileName[] = "/messages.bb";
 
 const byte MAX_MSG_SIZE = 200;
 
@@ -81,12 +77,11 @@ char bbTextFileName = 'A';
 int numFiles = 10;
 boolean inHeaders = true;
 
-Client client(webServerIp, webServerPort);
+EthernetClient client;
 
 // Metro is a nice simple library to check multiple
 // timers during the main loop.
 Metro queryTimer = Metro(180000);
-Metro dhcpTimer = Metro(600000);
 
 void setup()
 {
@@ -96,13 +91,17 @@ void setup()
   delay(2500);
   bb.CancelPriorityTextFile();
 
-  EthernetDHCP.begin(mac);
-  const byte* clientIp = EthernetDHCP.ipAddress();
-  Serial.print("DHCP IP: ");
-  Serial.println(ip_to_str(clientIp));
-  bb.WritePriorityTextFile(ip_to_str(clientIp), BB_COL_AMBER, BB_DP_FILL, BB_DM_SPECIAL, BB_SDM_SNOW);
+  Serial.println(F("Starting DHCP"));
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println(F("Failed to configure Ethernet using DHCP"));
+  } else {
+    Serial.print(F("Connected to Ethernet using DHCP with "));
+    IPAddress ip(Ethernet.localIP());
+    ip.printTo(Serial);
+    Serial.println();
+  }  
+  
   delay(3000);
-  resolveServer();
 
   bb.SetMemoryConfiguration(bbTextFileName, numFiles);
 
@@ -128,18 +127,19 @@ void updateStats()
 
   queryServer();
   printResponse();
-  EthernetDHCP.maintain();
 }
 
 void queryServer()
 {
   Serial.println("connecting...");
-  if (client.connect())
+  if (client.connect(webServerName, webServerPort))
   {
     Serial.println("connected");
 
     // change this to URL of web service
-    client.println("GET /messages.bb HTTP/1.0");
+    client.println("GET ");
+    client.println(webFileName);
+    client.println(" HTTP/1.0");
     client.println();
     queryTimer.interval(120000);
   }
@@ -439,28 +439,4 @@ void message(const char *msg)
   }
   Serial.print(color);Serial.print(position);Serial.print(mode);Serial.println(special);
   bb.WriteTextFile(bbTextFileName++, msg, color, position, mode, special);  
-}
-
-void resolveServer()
-{
-  EthernetDNS.setDNSServer(dnsServer);
-  Serial.print("resolving ");
-  Serial.print(webServerName);
-  Serial.print(" ...");
-  DNSError result = EthernetDNS.resolveHostName(webServerName, webServerIp);
-  if (result == DNSSuccess)
-  {
-    Serial.println(ip_to_str(webServerIp));
-  }
-  else
-  {
-    Serial.println("Problem resolving host name");
-  }
-}
-
-const char* ip_to_str(const byte* ipAddr)
-{
-  static char buf[16];
-  sprintf(buf, "%d.%d.%d.%d\0", ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3]);
-  return buf;
 }
