@@ -21,12 +21,17 @@
 
 // Display some canned messages and optionally the current time
 // on a BetaBrite.
+#ifdef DATEFUNCTIONS
 #include <Wire.h>
 #include "RTClib.h"
+#endif // DATEFUNCTIONS
 #include <SoftwareSerial.h>
 
-RTC_DS1307 RTC;
 SoftwareSerial  bbPort(7, 8);
+
+#ifdef DATEFUNCTIONS
+RTC_DS1307 RTC;
+#endif // DATEFUNCTIONS
 
 const int dtime = 15000;
 
@@ -36,17 +41,22 @@ const char *DisplayStrings[]={
  "Beer is good"
 };
 
+
 void setup ()
 {
  randomSeed(analogRead(1));
+#ifdef DATEFUNCTIONS
  Wire.begin();
+#endif
  bbPort.begin (9600);
  bbWelcome();
 }
 
 void loop ()
 {
-//  displayTime();
+#ifdef DATEFUNCTIONS
+  displayTime();
+#endif
   displayCount();
   displayRandomMessage();
 }
@@ -61,6 +71,7 @@ void displayCount()
   bbCancelPriorityMessage();
 }
 
+#ifdef DATEFUNCTIONS
 void displayTime()
 {
   DateTime now = RTC.now ();
@@ -80,6 +91,7 @@ void displayTime()
   delay(dtime);
   bbCancelPriorityMessage();
 }
+#endif // DATEFUNCTIONS
 
 void displayRandomMessage()
 {
