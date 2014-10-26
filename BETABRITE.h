@@ -16,7 +16,7 @@
 
 #include <WProgram.h>
 #include "BBDEFS.h"
-#include "../NewSoftSerial/NewSoftSerial.h"
+#include <SoftwareSerial.h>
 
 
 // following is based on Arduino forum user etracer's suggestion at
@@ -28,7 +28,7 @@
 #endif //DEVELOPMENT_MODE
 */
 
-class BETABRITE : NewSoftSerial
+class BETABRITE : SoftwareSerial
 {
 public:
 	BETABRITE ( uint8_t receivePin, uint8_t transmitPin, const char Type=BB_ST_ALL, const char Address[2]=NULL );

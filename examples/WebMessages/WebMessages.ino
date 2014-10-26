@@ -52,7 +52,7 @@
 //
 #include <Metro.h>
 
-#include "NewSoftSerial.h"
+#include <SoftwareSerial.h>
 #include <BETABRITE.h>
 
 #include <SPI.h>

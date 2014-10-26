@@ -23,10 +23,10 @@
 // on a BetaBrite.
 #include <Wire.h>
 #include "RTClib.h"
-#include "NewSoftSerial.h"
+#include <SoftwareSerial.h>
 
 RTC_DS1307 RTC;
-NewSoftSerial  bbPort(7, 8);
+SoftwareSerial  bbPort(7, 8);
 
 const int dtime = 15000;
 

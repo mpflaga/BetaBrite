@@ -10,14 +10,19 @@
    http://www.alpha-american.com/alpha-manuals/M-Protocol.pdf
    (c) 2011
 */
-#include <WProgram.h>
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
 #ifdef DATEFUNCTIONS
 #include "RTClib.h"
 #endif
 #include "BETABRITE.h"
 #define BB_BETWEEN_COMMAND_DELAY 110
 
-BETABRITE::BETABRITE ( uint8_t receivePin, uint8_t transmitPin, const char Type, const char Address[2] ) : NewSoftSerial ( receivePin, transmitPin )
+BETABRITE::BETABRITE ( uint8_t receivePin, uint8_t transmitPin, const char Type, const char Address[2] ) : SoftwareSerial ( receivePin, transmitPin )
 {
 	begin ( 9600 );
 	_type = Type;
