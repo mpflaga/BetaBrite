@@ -14,7 +14,6 @@
 #ifndef BETABRITE_H
 #define BETABRITE_H
 
-#include <WProgram.h>
 #include "BBDEFS.h"
 #include <SoftwareSerial.h>
 
